@@ -10,38 +10,114 @@ import 'dart:convert';
 //          Map -> 객체 : 객체에 fromJson named 생성자를 구현해서 사용!
 
 void main() {
-  // jsonEncode: Map => String
-  //
-  Map<String, dynamic> map = {"name": "김동준", "age": 20};
+  // Pet
 
-  String jsonData = jsonEncode(map);
-  print(jsonData);
-
-  // triplequotes: 긴 텍스트나 특정형식 유지 """ """
-  String jsonSampleData = """
+  String easyJson = """
 {
-  "name":"김동준",
-  "age":20
+	"name": "오상구",
+	"age": 7,
+	"isMale" : true
 }
 """;
-  var decodedData = jsonDecode(jsonSampleData);
-  print(decodedData.runtimeType);
-  print(decodedData);
 
-  Human human = Human.fromJson(decodedData);
-  human.toJson();
+  // 1. String -> Map 형태로 바꾼다
+  Map<String, dynamic> easyMap = jsonDecode(easyJson);
+
+  // 3. Map -> class 객체로 바꾼다
+
+  Pet pet = Pet.fromJson(easyMap);
+  print(pet.toJson());
+
+  // PerDetail
+  // Contact
+  String hardJson = """
+{
+	"name": "오상구",
+	"age": 7,
+	"isMale" : true,
+	"favorite_foods" : ["삼겹살", "연어", "고구마"],
+	"contact": {
+		"mobile": "010-0000-0000",
+		"email": null
+	}
+}
+""";
+
+  // 1. jsonString -> Map 형태로 바꾼다
+  Map<String, dynamic> hardMap = jsonDecode(hardJson);
+  // 3. class를 정의했으니 객체로 만든다
+  PetDetail petDetail = PetDetail.fromJson(hardMap);
+  print(petDetail.toJson());
 }
 
-class Human {
+// 2. 객체로 바꾸기 위해서 class를 정의한다
+
+class PetDetail {
   String name;
   int age;
+  bool isMale;
+  List<String> favoriteFoods;
+  Contact contact;
 
-  Human({required this.name, required this.age});
+  PetDetail({
+    required this.name,
+    required this.age,
+    required this.isMale,
+    required this.favoriteFoods,
+    required this.contact,
+  });
 
-  Human.fromJson(Map<String, dynamic> map)
-    : this(name: map['name'], age: map['age']);
+  // fromJson named생성자 만들기
+  PetDetail.fromJson(Map<String, dynamic> map)
+    : this(
+        name: map['name'],
+        age: map['age'],
+        isMale: map['isMale'],
+        favoriteFoods: List<String>.from(map['favorite_foods']),
+        contact: Contact.fromJson(map['contact']),
+      );
 
+  // toJson
   Map<String, dynamic> toJson() {
-    return {'name': name, 'age': age};
+    return {
+      'name': name,
+      'age': age,
+      'isMale': isMale,
+      'favorite_foods': favoriteFoods,
+      'contact': contact.toJson(),
+    };
+  }
+}
+
+class Contact {
+  String mobile;
+  String? email;
+
+  Contact({required this.mobile, required this.email});
+
+  // Contact.formJson 네임드 생성자 만들기
+  Contact.fromJson(Map<String, dynamic> map)
+    : this(mobile: map['mobile'], email: map['email']);
+  // toJson 메서드 만들기
+  Map<String, dynamic> toJson() {
+    return {'mobile': mobile, 'email': email};
+  }
+}
+
+// 2. class 를 정의 한다.
+class Pet {
+  String name;
+  int age;
+  bool isMale;
+
+  Pet({required this.name, required this.age, required this.isMale});
+
+  // fromJson named생성자 만들기
+  Pet.fromJson(Map<String, dynamic> map)
+    : this(name: map['name'], age: map['age'], isMale: map['isMale']);
+
+  //
+  Map<String, dynamic> toJson() {
+    return {'name': name, 'age': age, 'isMale': isMale};
   }
 }
